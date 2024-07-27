@@ -43,7 +43,7 @@ bool UClimbingComponent::FindObstacle(FHitResult& HitResult, EDrawDebugTrace::Ty
 	return bHit;
 }
 
-bool UClimbingComponent::FindObstacleTop(FVector ObstacleImpactLocation, FHitResult& HitResult, EDrawDebugTrace::Type DebugType)
+bool UClimbingComponent::FindObstacleLedgeTop(FVector ObstacleImpactLocation, FHitResult& HitResult, EDrawDebugTrace::Type DebugType)
 {
 	// Shifts the reference point of the obstacle's impact to the bottom of the character
 	const float HalfHeight = Character->GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight();
@@ -140,12 +140,12 @@ bool UClimbingComponent::FindLedge(FHitResult& TopHitResult, FHitResult& Forward
 	if (const bool bObstacleHit = this->FindObstacle(ObstacleHitResult, DebugType))
 	{
 		const FVector ObstacleImpactLocation = ObstacleHitResult.ImpactPoint;
-		FHitResult ObstacleTopHitResult;
-		if (const bool bObstacleTopHit = this->FindObstacleTop(ObstacleImpactLocation, ObstacleTopHitResult, DebugType) )
+		FHitResult ObstacleLedgeTopHitResult;
+		if (const bool bObstacleLedgeTopHit = this->FindObstacleLedgeTop(ObstacleImpactLocation, ObstacleLedgeTopHitResult, DebugType) )
 		{
-			if (this->IsObstacleTopReachable(ObstacleTopHitResult.ImpactPoint, DebugType))
+			if (this->IsObstacleTopReachable(ObstacleLedgeTopHitResult.ImpactPoint, DebugType))
 			{
-				TopHitResult = ObstacleTopHitResult;
+				TopHitResult = ObstacleLedgeTopHitResult;
 				const bool bObstacleLedgeForwardHit = this->FindObstacleLedgeForward(TopHitResult.ImpactPoint, ForwardHitResult, DebugType);
 				return true;
 			}
