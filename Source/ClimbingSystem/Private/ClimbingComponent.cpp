@@ -69,7 +69,8 @@ bool UClimbingComponent::FindObstacleTop(FVector ObstacleImpactLocation, FHitRes
 	const TArray<TObjectPtr<AActor>> ActorsToIgnore{};
 
 	const bool bHit = UKismetSystemLibrary::LineTraceSingle(Character, StartLocation, EndLocation, TraceChannel, false, ActorsToIgnore, DebugType, HitResult, true, FLinearColor::Blue);
-	HitResult.ImpactPoint = HitResult.ImpactPoint - ForwardVector * AdditionalDepthCorrection;
+	// Shifts the point to obstacles corner. It's not obvious, so it's temporarily commented out.
+	//HitResult.ImpactPoint = HitResult.ImpactPoint - ForwardVector * AdditionalDepthCorrection;
 
 	if (DebugType != EDrawDebugTrace::None)
 	{
