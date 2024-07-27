@@ -16,20 +16,20 @@ public:
 	UClimbingComponent();
 
 	/**
-	*	Finds available ledge in-front of the character.
-	*	@param HitResult is the point of ledge corner.
-	*	@param DebugType Used to draw debug traces.
-	*	@return True if valid ledge in-front, false otherwise.
+	* Finds available ledge in-front of the character.
+	* @param HitResult is the point of ledge corner.
+	* @param DebugType Used to draw debug traces.
+	* @return True if valid ledge in-front, false otherwise.
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Climbing")
 	bool FindLedge(FHitResult& HitResult, EDrawDebugTrace::Type DebugType);
 
 	/**
-	*	Finds valid position for character on-top of the ledge based on character capsule halfheight and radius.
-	*	@param LedgeLocation
-	*	@param HitResult
-	*	@param bHit
-	*	@return Valid location. Returns zero-vector if none.
+	* Finds valid position for character on-top of the ledge based on character capsule halfheight and radius.
+	* @param LedgeLocation
+	* @param HitResult
+	* @param bHit
+	* @return Valid location. Returns zero-vector if none.
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Climbing")
 	FVector FindAvailablePositionOnLedge(FVector LedgeLocation, FHitResult& HitResult, bool& bHit);
@@ -58,37 +58,37 @@ protected:
 	TObjectPtr<ACharacter> Character;
 
 	/**
-	*	Finds obstacle/wall in-front of the character. Uses capsule trace to do so.
-	*	@param HitResult capsule trace result.
-	*	@param DebugType Used to draw debug trace.
-	*	@return True if obstacle exist, false otherwise.
+	* Finds obstacle/wall in-front of the character. Uses capsule trace to do so.
+	* @param HitResult capsule trace result.
+	* @param DebugType Used to draw debug trace.
+	* @return True if obstacle exist, false otherwise.
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Climbing")
 	bool FindObstacle(FHitResult& HitResult, EDrawDebugTrace::Type DebugType);
 
 	/**
-	*	Finds top surface of the obstacle in-front, based on impact location and MaxLedgeHeight. Returns nearest point - ledge corner *almost*
-	*	@param ObstacleImpactLocation is the in-front obstacle impact location.
-	*	@param HitResult top-down line trace result.
-	*	@param DebugType Used to draw debug trace.
-	*	@return True if obstacles height valid, false otherwise.
+	* Finds top surface of the obstacle in-front, based on impact location and MaxLedgeHeight. Returns nearest point - ledge corner *almost*
+	* @param ObstacleImpactLocation is the in-front obstacle impact location.
+	* @param HitResult top-down line trace result.
+	* @param DebugType Used to draw debug trace.
+	* @return True if obstacles height valid, false otherwise.
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Climbing")
 	bool FindObstacleTop(FVector ObstacleImpactLocation, FHitResult& HitResult, EDrawDebugTrace::Type DebugType);
 
 	/**
-	*	Checks if ObstacleTopImpactLocation is reacheble. Uses line trace from characters capsule top to ObstacleTopImpactLocation.
-	*	@param ObstacleTopImpactLocation is location of the obstacles top surface(ledge corner).
-	*	@param DebugType Used to draw debug trace.
-	*	@return True if point reachable, false otherwise.
+	* Checks if ObstacleTopImpactLocation is reacheble. Uses line trace from characters capsule top to ObstacleTopImpactLocation.
+	* @param ObstacleTopImpactLocation is location of the obstacles top surface(ledge corner).
+	* @param DebugType Used to draw debug trace.
+	* @return True if point reachable, false otherwise.
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Climbing")
 	bool IsObstacleTopReachable(FVector ObstacleTopImpactLocation, EDrawDebugTrace::Type DebugType);
 
 	/**
-	*	Calculates ledge height based on distance along Z-axis from characters capsule bottom point to LedgeLocation.
-	*	@param LedgeLocation is location of the obstacles top surface(ledge corner).
-	*	@return Height, distance.
+	* Calculates ledge height based on distance along Z-axis from characters capsule bottom point to LedgeLocation.
+	* @param LedgeLocation is location of the obstacles top surface(ledge corner).
+	* @return Height, distance.
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Climbing")
 	float CalcLedgeHeight(FVector LedgeLocation);
