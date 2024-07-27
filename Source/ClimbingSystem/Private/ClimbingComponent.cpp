@@ -119,7 +119,7 @@ bool UClimbingComponent::EnableMovementAndCollision()
 	return true;
 }
 
-bool UClimbingComponent::FindLedge(FHitResult& HitResult, EDrawDebugTrace::Type DebugType)
+bool UClimbingComponent::FindLedge(FHitResult& TopHitResult, FHitResult& ForwardHitResult, EDrawDebugTrace::Type DebugType)
 {
 	FHitResult ObstacleHitResult;
 	if (const bool bObstacleHit = this->FindObstacle(ObstacleHitResult, DebugType))
@@ -130,7 +130,8 @@ bool UClimbingComponent::FindLedge(FHitResult& HitResult, EDrawDebugTrace::Type 
 		{
 			if (this->IsObstacleTopReachable(ObstacleTopHitResult.ImpactPoint, DebugType))
 			{
-				HitResult = ObstacleTopHitResult;
+				TopHitResult = ObstacleTopHitResult;
+				ForwardHitResult = ObstacleTopHitResult;
 				return true;
 			}
 		}

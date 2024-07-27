@@ -17,12 +17,13 @@ public:
 
 	/**
 	* Finds available ledge in-front of the character.
-	* @param HitResult is the point of ledge corner.
+	* @param TopHitResult is the top point of ledge corner.
+	* @param ForwardHitResult is the forward point of ledge corner.
 	* @param DebugType Used to draw debug traces.
 	* @return True if valid ledge in-front, false otherwise.
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Climbing")
-	bool FindLedge(FHitResult& HitResult, EDrawDebugTrace::Type DebugType);
+	bool FindLedge(FHitResult& TopHitResult, FHitResult& ForwardHitResult, EDrawDebugTrace::Type DebugType);
 
 	/**
 	* Finds valid position for character on-top of the ledge based on character capsule halfheight and radius.
