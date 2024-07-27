@@ -34,6 +34,21 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Climbing")
 	FVector FindAvailablePositionOnLedge(FVector LedgeLocation, FHitResult& HitResult, bool& bHit);
 
+	/**
+	* Finds opposite ledge along character forward vector.
+	* @param LedgeHitResult is ledge data, should be obtained via FindLedge()
+	* @see FindLedge()
+	* @param HitResult note that Hit Normal not consistent with LedgeHit Normal.
+	* @param DebugType
+	* @result Returns true if ledge found, false otherwise.
+	*/
+	UFUNCTION(BlueprintCallable, Category = "Climbing")
+	bool FindOppositeLedge(FHitResult LedgeHitResult, FHitResult& HitResult, EDrawDebugTrace::Type DebugType);
+
+	// Not yet implemented. Should be used if you want find truly opposite ledge with obstacle normal instead of character forward vector.
+	UFUNCTION(BlueprintCallable, Category = "Climbing")
+	bool FindOppositeLedgeByLocationAndNormal(FVector LedgeLocation, FVector LedgeNormal, FHitResult& HitResult, EDrawDebugTrace::Type DebugType);
+
 	// Max forward distance of the ledge.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Climbing", meta = (ClampMin = "0"))
 	float LedgeFindingDistance = 200.f;
@@ -42,13 +57,17 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Climbing", meta = (ClampMin = "0"))
 	float LedgeFindingMaxHeight = 200.f;
 
-	// Little adjustment to detect ledge if it's height equal to MaxLedgeHeight
+	// Max obstacle depth. Defines max distance between obstacle ledges along Characters forward-vector.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Climbing", meta = (ClampMin = "0"))
-	const float AdditionalHeightCorrection = 1.f;
+	float MaxObstacleDepth = 300.f;
 
-	// Little adjustment to shift top-down line trace deeper to the obstacle
+	// Little adjustment to detect ledge if it's height equal to MaxLedgeHeight. Used in FindLedge().
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Climbing", meta = (ClampMin = "0"))
-	const float AdditionalDepthCorrection = 1.f;
+	float AdditionalHeightCorrection = 1.f;
+
+	// Little adjustment to shift top-down line trace deeper to the obstacle. Used in FindLedge().
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Climbing", meta = (ClampMin = "0"))
+	float AdditionalDepthCorrection = 1.f;
 
 protected:
 
