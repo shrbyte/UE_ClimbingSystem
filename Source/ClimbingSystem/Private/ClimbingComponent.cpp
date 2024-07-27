@@ -103,6 +103,21 @@ float UClimbingComponent::CalcLedgeHeight(FVector LedgeLocation)
 	return abs(LedgeLocation.Z - CharacterBottomLocation.Z);
 }
 
+bool UClimbingComponent::FindObstacleLedgeForward(const FVector ObstacleTopImpactLocation, FHitResult& HitResult, EDrawDebugTrace::Type DebugType)
+{
+	const FVector CharacterLocation = Character->GetActorLocation();
+	const FVector ForwardVector = Character->GetActorForwardVector();
+	const FVector UpVector = Character->GetActorUpVector();
+	const FVector StartLocation = FVector{CharacterLocation.X, CharacterLocation.Y, ObstacleTopImpactLocation.Z} - UpVector * AdditionalHeightCorrection;
+	const FVector EndLocation = ObstacleTopImpactLocation + ForwardVector * AdditionalDepthCorrection - UpVector * AdditionalHeightCorrection;
+
+	const ETraceTypeQuery TraceChannel = ETraceTypeQuery::TraceTypeQuery1;
+	const TArray<TObjectPtr<AActor>> ActorsToIgnore{};
+
+	const bool bHit = UKismetSystemLibrary::LineTraceSingle(Character, StartLocation, EndLocation, TraceChannel, false, ActorsToIgnore, DebugType, HitResult, true, FLinearColor::White);
+	return bHit;
+}
+
 bool UClimbingComponent::DisableMovementAndCollision()
 {
 	Character->GetCharacterMovement()->StopMovementImmediately();
@@ -131,7 +146,7 @@ bool UClimbingComponent::FindLedge(FHitResult& TopHitResult, FHitResult& Forward
 			if (this->IsObstacleTopReachable(ObstacleTopHitResult.ImpactPoint, DebugType))
 			{
 				TopHitResult = ObstacleTopHitResult;
-				ForwardHitResult = ObstacleTopHitResult;
+				const bool bObstacleLedgeForwardHit = this->FindObstacleLedgeForward(TopHitResult.ImpactPoint, ForwardHitResult, DebugType);
 				return true;
 			}
 		}

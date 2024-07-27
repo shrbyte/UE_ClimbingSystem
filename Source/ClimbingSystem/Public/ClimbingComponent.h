@@ -113,6 +113,12 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Climbing")
 	float CalcLedgeHeight(FVector LedgeLocation);
 
+	/**
+	* 
+	*/
+	UFUNCTION(BlueprintCallable, Category = "Climbing")
+	bool FindObstacleLedgeForward(FVector ObstacleTopImpactLocation, FHitResult& HitResult, EDrawDebugTrace::Type DebugType);
+
 	UFUNCTION(BlueprintCallable, Category = "Climbing")
 	bool DisableMovementAndCollision();
 
