@@ -69,7 +69,7 @@ bool UClimbingComponent::FindObstacleLedgeTop(FVector ObstacleImpactLocation, FH
 
 	if (DebugType != EDrawDebugTrace::None)
 	{
-		UE_LOGFMT(LogTemp, Log, "[ClimbingComponent] : FindObstacleTop() = {0} ", bHit);
+		UE_LOGFMT(LogTemp, Log, "[ClimbingComponent] : FindObstacleLedgeTop() = {0} ", bHit);
 	}
 
 	return bHit;
@@ -115,6 +115,12 @@ bool UClimbingComponent::FindObstacleLedgeForward(const FVector ObstacleTopImpac
 	const TArray<TObjectPtr<AActor>> ActorsToIgnore{};
 
 	const bool bHit = UKismetSystemLibrary::LineTraceSingle(Character, StartLocation, EndLocation, TraceChannel, false, ActorsToIgnore, DebugType, HitResult, true, FLinearColor::White);
+
+	if (DebugType != EDrawDebugTrace::None)
+	{
+		UE_LOGFMT(LogTemp, Log, "[ClimbingComponent] : FindObstacleLedgeForward() = {0} ", bHit);
+	}
+
 	return bHit;
 }
 
