@@ -172,7 +172,7 @@ bool UClimbingComponent::FindOppositeLedgeInDirection(FHitResult LedgeTopHitResu
 	const ETraceTypeQuery TraceChannel = ETraceTypeQuery::TraceTypeQuery1;
 	const TArray<TObjectPtr<AActor>> ActorsToIgnore{};
 
-	FVector StartLocation = LedgeLocation + LedgeNormal * 1.f;
+	FVector StartLocation = LedgeLocation + LedgeNormal * AdditionalHeightCorrection;
 	FVector EndLocation = StartLocation + ForwardVectorWithOffset;
 	FHitResult TempHitResult;
 	// First trace along forward vector.
@@ -184,7 +184,7 @@ bool UClimbingComponent::FindOppositeLedgeInDirection(FHitResult LedgeTopHitResu
 	
 	// Second top-down trace along up vector. Checks if the obstacle top surface has ended - if so continue.
 	StartLocation = EndLocation;
-	EndLocation = StartLocation + LedgeNormal * (-1) * 2.f;
+	EndLocation = StartLocation + LedgeNormal * (-1) * AdditionalHeightCorrection + LedgeNormal * (-1);
 	bHit = UKismetSystemLibrary::LineTraceSingle(Character, StartLocation, EndLocation, TraceChannel, false, ActorsToIgnore, DebugType, TempHitResult, true, FLinearColor::Red);
 	if (bHit)
 	{
@@ -214,7 +214,7 @@ bool UClimbingComponent::FindOppositeLedgeInDirection(FHitResult LedgeTopHitResu
 	return true;
 }
 
-FVector UClimbingComponent::FindAvailablePositionOnLedge(FVector LedgeLocation, FHitResult& HitResult, bool& bHit)
+FVector UClimbingComponent::FindAvailablePositionOnLedge(FVector LedgeLocation, FHitResult& HitResult, bool& bHit, EDrawDebugTrace::Type DebugType)
 {
 	const FVector UpVector = Character->GetActorUpVector();
 	const FVector ForwardVector = Character->GetActorForwardVector();
@@ -225,7 +225,6 @@ FVector UClimbingComponent::FindAvailablePositionOnLedge(FVector LedgeLocation, 
 	const FVector EndLocation = StartLocation + Radius * ForwardVector;
 	const ETraceTypeQuery TraceChannel = ETraceTypeQuery::TraceTypeQuery1;
 	const TArray<TObjectPtr<AActor>> ActorsToIgnore{};
-	const EDrawDebugTrace::Type DebugType = EDrawDebugTrace::None;
 
 	bHit = UKismetSystemLibrary::CapsuleTraceSingle(Character, StartLocation, EndLocation, Radius, HalfHeight, TraceChannel, false, ActorsToIgnore, DebugType, HitResult, true, FLinearColor::Red);
 	if (bHit)

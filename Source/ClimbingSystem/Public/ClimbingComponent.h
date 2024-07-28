@@ -7,7 +7,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "ClimbingComponent.generated.h"
 
-UCLASS( BlueprintType, Blueprintable, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS( BlueprintType, Blueprintable, ClassGroup=(Climbing),DisplayName = "Climbing Component", meta = (BlueprintSpawnableComponent))
 class CLIMBINGSYSTEM_API UClimbingComponent : public UActorComponent
 {
 	GENERATED_BODY()
@@ -33,7 +33,7 @@ public:
 	* @return Valid location. Returns zero-vector if none.
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Climbing")
-	FVector FindAvailablePositionOnLedge(FVector LedgeLocation, FHitResult& HitResult, bool& bHit);
+	FVector FindAvailablePositionOnLedge(FVector LedgeLocation, FHitResult& HitResult, bool& bHit, EDrawDebugTrace::Type DebugType);
 
 	/**
 	* Finds opposite ledge along given direction.
@@ -56,15 +56,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Climbing", meta = (ClampMin = "0"))
 	float LedgeFindingMaxHeight = 200.f;
 
-	// Max obstacle depth. Defines max distance between obstacle ledges along Characters forward-vector.
+	// Max obstacle depth. Defines max distance between obstacle ledges.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Climbing", meta = (ClampMin = "0"))
 	float MaxObstacleDepth = 300.f;
 
-	// Little adjustment to detect ledge if it's height equal to MaxLedgeHeight. Used in FindLedge().
+	// Little adjustment to detect ledge if it's height equal to MaxLedgeHeight.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Climbing", meta = (ClampMin = "0"))
 	float AdditionalHeightCorrection = 1.f;
 
-	// Little adjustment to shift top-down line trace deeper to the obstacle. Used in FindLedge().
+	// Little adjustment to shift top-down line trace deeper to the obstacle.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Climbing", meta = (ClampMin = "0"))
 	float AdditionalDepthCorrection = 1.f;
 
