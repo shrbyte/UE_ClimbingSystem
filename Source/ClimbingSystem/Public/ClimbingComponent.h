@@ -36,10 +36,10 @@ public:
 	FVector FindAvailablePositionOnLedge(FVector LedgeLocation, FHitResult& HitResult, bool& bHit);
 
 	/**
-	* Finds opposite ledge along character forward vector.
+	* Finds opposite ledge along given direction.
 	* @param LedgeTopHitResult is ledge data, should be obtained via FindLedge()
 	* @see FindLedge()
-	* @param ForwardVector determines direction to search opposite ledge.
+	* @param ForwardVector Determines direction to search opposite ledge. You may use character forward vector mostly often if obstacles are flat.
 	* @param TopHitResult
 	* @param FrontHitResult
 	* @param DebugType
@@ -116,7 +116,7 @@ protected:
 	float CalcLedgeHeight(FVector LedgeLocation);
 
 	/**
-	* 
+	* Finds ledge face point in-front of character based on TopImpactLocation and forward vector.
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Climbing")
 	bool FindObstacleLedgeForward(FVector ObstacleTopImpactLocation, FHitResult& HitResult, EDrawDebugTrace::Type DebugType);
