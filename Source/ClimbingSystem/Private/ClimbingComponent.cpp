@@ -54,6 +54,7 @@ bool UClimbingComponent::FindObstacleLedgeTop(FVector ObstacleImpactLocation, FH
 	const FVector UpVector = Character->GetActorUpVector();
 	const FVector UpVectorWithVerticalOffset = UpVector * (LedgeFindingMaxHeight + AdditionalHeightCorrection);
 
+	//TODO: use obstacle impact normal instead of character forward vector.
 	const FVector ForwardVector = Character->GetActorForwardVector();
 	const FVector ForwardVectorWithDepthOffset = ForwardVector * AdditionalDepthCorrection;
 
@@ -160,12 +161,12 @@ bool UClimbingComponent::FindLedge(FHitResult& TopHitResult, FHitResult& Forward
 	return false;
 }
 
-bool UClimbingComponent::FindOppositeLedge(FHitResult LedgeHitResult, FHitResult& HitResult, EDrawDebugTrace::Type DebugType)
+bool UClimbingComponent::FindOppositeLedgeInDirection(FHitResult LedgeTopHitResult, FVector ForwardVector, FHitResult& TopHitResult, FHitResult& FrontHitResult, EDrawDebugTrace::Type DebugType)
 {
-	const FVector LedgeLocation = LedgeHitResult.ImpactPoint;
-	const FVector LedgeNormal = LedgeHitResult.ImpactNormal;
-	const FVector ForwardVector = Character->GetActorForwardVector();
-	const FVector UpVector = Character->GetActorUpVector();
+	const FVector LedgeLocation = LedgeTopHitResult.ImpactPoint;
+	const FVector LedgeNormal = LedgeTopHitResult.ImpactNormal;
+	//const FVector ForwardVector = Character->GetActorForwardVector();
+	//const FVector UpVector = Character->GetActorUpVector();
 	const FVector ForwardVectorWithOffset = ForwardVector * MaxObstacleDepth;
 
 	const ETraceTypeQuery TraceChannel = ETraceTypeQuery::TraceTypeQuery1;
@@ -173,8 +174,9 @@ bool UClimbingComponent::FindOppositeLedge(FHitResult LedgeHitResult, FHitResult
 
 	FVector StartLocation = LedgeLocation + LedgeNormal * 1.f;
 	FVector EndLocation = StartLocation + ForwardVectorWithOffset;
+	FHitResult TempHitResult;
 	// First trace along forward vector.
-	bool bHit = UKismetSystemLibrary::LineTraceSingle(Character, StartLocation, EndLocation, TraceChannel, false, ActorsToIgnore, DebugType, HitResult, true, FLinearColor::Red);
+	bool bHit = UKismetSystemLibrary::LineTraceSingle(Character, StartLocation, EndLocation, TraceChannel, false, ActorsToIgnore, DebugType, TempHitResult, true, FLinearColor::Red);
 	if (bHit)
 	{
 		return false;
@@ -182,19 +184,30 @@ bool UClimbingComponent::FindOppositeLedge(FHitResult LedgeHitResult, FHitResult
 	
 	// Second top-down trace along up vector. Checks if the obstacle top surface has ended - if so continue.
 	StartLocation = EndLocation;
-	EndLocation = StartLocation + UpVector * (-1) * 2.f;
-	bHit = UKismetSystemLibrary::LineTraceSingle(Character, StartLocation, EndLocation, TraceChannel, false, ActorsToIgnore, DebugType, HitResult, true, FLinearColor::Red);
+	EndLocation = StartLocation + LedgeNormal * (-1) * 2.f;
+	bHit = UKismetSystemLibrary::LineTraceSingle(Character, StartLocation, EndLocation, TraceChannel, false, ActorsToIgnore, DebugType, TempHitResult, true, FLinearColor::Red);
 	if (bHit)
 	{
 		return false;
 	}
 
 	// Third trace along -forward vector. Looks for obstacle opposite side point.
-	StartLocation = EndLocation + UpVector;
+	StartLocation = EndLocation;
 	EndLocation = StartLocation + ForwardVector * (-1) * MaxObstacleDepth;
-	bHit = UKismetSystemLibrary::LineTraceSingle(Character, StartLocation, EndLocation, TraceChannel, false, ActorsToIgnore, DebugType, HitResult, true, FLinearColor::White);
+	bHit = UKismetSystemLibrary::LineTraceSingle(Character, StartLocation, EndLocation, TraceChannel, false, ActorsToIgnore, DebugType, TempHitResult, true, FLinearColor::White);
+	if (not bHit)
+	{
+		return false;
+	}
+	FrontHitResult = TempHitResult;
 
-	return bHit;
+	// Fourth top-down trace along -FrontHit normal to find top ledge side.
+	StartLocation = FrontHitResult.ImpactPoint + FrontHitResult.ImpactNormal * (-1) * AdditionalDepthCorrection + (LedgeNormal * AdditionalHeightCorrection);
+	EndLocation = FrontHitResult.ImpactPoint + FrontHitResult.ImpactNormal * (-1) * AdditionalDepthCorrection;
+	bHit = UKismetSystemLibrary::LineTraceSingle(Character, StartLocation, EndLocation, TraceChannel, false, ActorsToIgnore, DebugType, TempHitResult, true, FLinearColor::White);
+	TopHitResult = TempHitResult;
+
+	return true;
 }
 
 bool UClimbingComponent::FindOppositeLedgeByLocationAndNormal(FVector LedgeLocation, FVector LedgeNormal, FHitResult& HitResult, EDrawDebugTrace::Type DebugType)

@@ -37,14 +37,16 @@ public:
 
 	/**
 	* Finds opposite ledge along character forward vector.
-	* @param LedgeHitResult is ledge data, should be obtained via FindLedge()
+	* @param LedgeTopHitResult is ledge data, should be obtained via FindLedge()
 	* @see FindLedge()
-	* @param HitResult note that Hit Normal not consistent with LedgeHit Normal.
+	* @param ForwardVector determines direction to search opposite ledge.
+	* @param TopHitResult
+	* @param FrontHitResult
 	* @param DebugType
 	* @result Returns true if ledge found, false otherwise.
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Climbing")
-	bool FindOppositeLedge(FHitResult LedgeHitResult, FHitResult& HitResult, EDrawDebugTrace::Type DebugType);
+	bool FindOppositeLedgeInDirection(FHitResult LedgeTopHitResult, FVector ForwardVector, FHitResult& TopHitResult, FHitResult& FrontHitResult, EDrawDebugTrace::Type DebugType);
 
 	// Not yet implemented. Should be used if you want find truly opposite ledge with obstacle normal instead of character forward vector.
 	UFUNCTION(BlueprintCallable, Category = "Climbing")
