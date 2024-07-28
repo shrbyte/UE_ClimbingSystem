@@ -165,8 +165,6 @@ bool UClimbingComponent::FindOppositeLedgeInDirection(FHitResult LedgeTopHitResu
 {
 	const FVector LedgeLocation = LedgeTopHitResult.ImpactPoint;
 	const FVector LedgeNormal = LedgeTopHitResult.ImpactNormal;
-	//const FVector ForwardVector = Character->GetActorForwardVector();
-	//const FVector UpVector = Character->GetActorUpVector();
 	const FVector ForwardVectorWithOffset = ForwardVector * MaxObstacleDepth;
 
 	const ETraceTypeQuery TraceChannel = ETraceTypeQuery::TraceTypeQuery1;
@@ -205,6 +203,10 @@ bool UClimbingComponent::FindOppositeLedgeInDirection(FHitResult LedgeTopHitResu
 	StartLocation = FrontHitResult.ImpactPoint + FrontHitResult.ImpactNormal * (-1) * AdditionalDepthCorrection + (LedgeNormal * AdditionalHeightCorrection);
 	EndLocation = FrontHitResult.ImpactPoint + FrontHitResult.ImpactNormal * (-1) * AdditionalDepthCorrection;
 	bHit = UKismetSystemLibrary::LineTraceSingle(Character, StartLocation, EndLocation, TraceChannel, false, ActorsToIgnore, DebugType, TempHitResult, true, FLinearColor::White);
+	if (not bHit)
+	{
+		return false;
+	}
 	TopHitResult = TempHitResult;
 
 	return true;
