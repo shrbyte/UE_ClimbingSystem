@@ -214,13 +214,6 @@ bool UClimbingComponent::FindOppositeLedgeInDirection(FHitResult LedgeTopHitResu
 	return true;
 }
 
-bool UClimbingComponent::FindOppositeLedgeByLocationAndNormal(FVector LedgeLocation, FVector LedgeNormal, FHitResult& HitResult, EDrawDebugTrace::Type DebugType)
-{
-	// TODO:
-	return false;
-}
-
-
 FVector UClimbingComponent::FindAvailablePositionOnLedge(FVector LedgeLocation, FHitResult& HitResult, bool& bHit)
 {
 	const FVector UpVector = Character->GetActorUpVector();

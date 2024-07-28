@@ -48,10 +48,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Climbing")
 	bool FindOppositeLedgeInDirection(FHitResult LedgeTopHitResult, FVector ForwardVector, FHitResult& TopHitResult, FHitResult& FrontHitResult, EDrawDebugTrace::Type DebugType);
 
-	// Not yet implemented. Should be used if you want find truly opposite ledge with obstacle normal instead of character forward vector.
-	UFUNCTION(BlueprintCallable, Category = "Climbing")
-	bool FindOppositeLedgeByLocationAndNormal(FVector LedgeLocation, FVector LedgeNormal, FHitResult& HitResult, EDrawDebugTrace::Type DebugType);
-
 	// Max forward distance of the ledge.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Climbing", meta = (ClampMin = "0"))
 	float LedgeFindingDistance = 200.f;
