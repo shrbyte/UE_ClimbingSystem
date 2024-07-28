@@ -96,7 +96,7 @@ protected:
 	* @return True if obstacles height valid, false otherwise.
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Climbing")
-	bool FindObstacleLedgeTop(FVector ObstacleImpactLocation, FHitResult& HitResult, EDrawDebugTrace::Type DebugType);
+	bool FindObstacleLedgeTop(FVector ObstacleImpactLocation, FVector ObstacleFaceNormal, FHitResult& HitResult, EDrawDebugTrace::Type DebugType);
 
 	/**
 	* Checks if ObstacleTopImpactLocation is reacheble. Uses line trace from characters capsule top to ObstacleTopImpactLocation.

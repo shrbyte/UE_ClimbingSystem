@@ -43,23 +43,26 @@ bool UClimbingComponent::FindObstacle(FHitResult& HitResult, EDrawDebugTrace::Ty
 	return bHit;
 }
 
-bool UClimbingComponent::FindObstacleLedgeTop(FVector ObstacleImpactLocation, FHitResult& HitResult, EDrawDebugTrace::Type DebugType)
+bool UClimbingComponent::FindObstacleLedgeTop(FVector ObstacleImpactLocation, FVector ObstacleFaceNormal, FHitResult& HitResult, EDrawDebugTrace::Type DebugType)
 {
+	const float Halfheight = Character->GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight();
+	const FVector CharacterLocation = Character->GetActorLocation();
+	const FVector CharacterUpVector = Character->GetActorUpVector();
+	const FVector CharacterRightVector = Character->GetActorRightVector();
+
 	// Shifts the reference point of the obstacle's impact to the bottom of the character
-	const float HalfHeight = Character->GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight();
-	const FVector ZOffsetByCapsuleHeight = { 0, 0, HalfHeight };
-	const FVector VerticalCorrectionVector = Character->GetActorLocation() - ZOffsetByCapsuleHeight;
-	ObstacleImpactLocation.Set(ObstacleImpactLocation.X, ObstacleImpactLocation.Y, VerticalCorrectionVector.Z);
+	const FVector CharacterCenterVertical = (CharacterLocation - CharacterUpVector * Halfheight) * CharacterUpVector;
+	const FVector ImpactLocationVertical = ObstacleImpactLocation * CharacterUpVector;
+	const float ImpactLocationVerticalOffset = FVector::Dist(ImpactLocationVertical, CharacterCenterVertical);
 
-	const FVector UpVector = Character->GetActorUpVector();
-	const FVector UpVectorWithVerticalOffset = UpVector * (LedgeFindingMaxHeight + AdditionalHeightCorrection);
+	const FVector UpVector = ObstacleFaceNormal.Cross(CharacterRightVector) * (-1);
+	const FVector UpVectorWithVerticalOffset = UpVector * (LedgeFindingMaxHeight + AdditionalHeightCorrection) - UpVector * ImpactLocationVerticalOffset;
 
-	//TODO: use obstacle impact normal instead of character forward vector.
-	const FVector ForwardVector = Character->GetActorForwardVector();
+	const FVector ForwardVector = ObstacleFaceNormal * (-1);
 	const FVector ForwardVectorWithDepthOffset = ForwardVector * AdditionalDepthCorrection;
 
 	const FVector StartLocation = UpVectorWithVerticalOffset + ForwardVectorWithDepthOffset + ObstacleImpactLocation;
-	const FVector EndLocation = UpVectorWithVerticalOffset * (-1) + ForwardVectorWithDepthOffset + ObstacleImpactLocation;
+	const FVector EndLocation = ForwardVectorWithDepthOffset + ObstacleImpactLocation - UpVector * AdditionalHeightCorrection;
 
 	const ETraceTypeQuery TraceChannel = ETraceTypeQuery::TraceTypeQuery1;
 	const TArray<TObjectPtr<AActor>> ActorsToIgnore{};
@@ -70,7 +73,7 @@ bool UClimbingComponent::FindObstacleLedgeTop(FVector ObstacleImpactLocation, FH
 
 	if (DebugType != EDrawDebugTrace::None)
 	{
-		UE_LOGFMT(LogTemp, Log, "[ClimbingComponent] : FindObstacleLedgeTop() = {0} ", bHit);
+		UE_LOGFMT(LogTemp, Log, "[ClimbingComponent] : FindObstacleLedgeTop() = {0}, Dist from Impact to CharBottom: {1} ", bHit, ImpactLocationVerticalOffset);
 	}
 
 	return bHit;
@@ -146,9 +149,8 @@ bool UClimbingComponent::FindLedge(FHitResult& TopHitResult, FHitResult& Forward
 	FHitResult ObstacleHitResult;
 	if (const bool bObstacleHit = this->FindObstacle(ObstacleHitResult, DebugType))
 	{
-		const FVector ObstacleImpactLocation = ObstacleHitResult.ImpactPoint;
 		FHitResult ObstacleLedgeTopHitResult;
-		if (const bool bObstacleLedgeTopHit = this->FindObstacleLedgeTop(ObstacleImpactLocation, ObstacleLedgeTopHitResult, DebugType) )
+		if (const bool bObstacleLedgeTopHit = this->FindObstacleLedgeTop(ObstacleHitResult.ImpactPoint, ObstacleHitResult.ImpactNormal, ObstacleLedgeTopHitResult, DebugType) )
 		{
 			if (this->IsObstacleTopReachable(ObstacleLedgeTopHitResult.ImpactPoint, DebugType))
 			{
