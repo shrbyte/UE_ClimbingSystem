@@ -112,8 +112,8 @@ bool UClimbingComponent::FindObstacleLedgeForward(const FVector ObstacleTopImpac
 	const FVector CharacterLocation = Character->GetActorLocation();
 	const FVector ForwardVector = Character->GetActorForwardVector();
 	const FVector UpVector = Character->GetActorUpVector();
-	const FVector StartLocation = FVector{CharacterLocation.X, CharacterLocation.Y, ObstacleTopImpactLocation.Z} - UpVector * AdditionalHeightCorrection;
-	const FVector EndLocation = ObstacleTopImpactLocation + ForwardVector * AdditionalDepthCorrection - UpVector * AdditionalHeightCorrection;
+	const FVector StartLocation = FVector{CharacterLocation.X, CharacterLocation.Y, ObstacleTopImpactLocation.Z} - UpVector * AdditionalDepthCorrection;
+	const FVector EndLocation = ObstacleTopImpactLocation + ForwardVector * AdditionalHeightCorrection - UpVector * AdditionalDepthCorrection;
 
 	const ETraceTypeQuery TraceChannel = ETraceTypeQuery::TraceTypeQuery1;
 	const TArray<TObjectPtr<AActor>> ActorsToIgnore{};
@@ -184,7 +184,7 @@ bool UClimbingComponent::FindOppositeLedgeInDirection(FHitResult LedgeTopHitResu
 	
 	// Second top-down trace along up vector. Checks if the obstacle top surface has ended - if so continue.
 	StartLocation = EndLocation;
-	EndLocation = StartLocation + LedgeNormal * (-1) * AdditionalHeightCorrection + LedgeNormal * (-1);
+	EndLocation = StartLocation + LedgeNormal * (-1) * AdditionalHeightCorrection + LedgeNormal * (-1) + LedgeNormal * (-1) * AdditionalDepthCorrection;
 	bHit = UKismetSystemLibrary::LineTraceSingle(Character, StartLocation, EndLocation, TraceChannel, false, ActorsToIgnore, DebugType, TempHitResult, true, FLinearColor::Red);
 	if (bHit)
 	{
