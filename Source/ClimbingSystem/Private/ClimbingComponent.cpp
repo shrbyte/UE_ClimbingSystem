@@ -221,8 +221,8 @@ FVector UClimbingComponent::FindAvailablePositionOnLedge(FVector LedgeLocation, 
 	const float Radius = Character->GetCapsuleComponent()->GetUnscaledCapsuleRadius();
 	const float HalfHeight = Character->GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight();
 	
-	const FVector StartLocation = LedgeLocation + UpVector * HalfHeight;
-	const FVector EndLocation = StartLocation + Radius * ForwardVector;
+	const FVector StartLocation = LedgeLocation + UpVector * HalfHeight + UpVector;
+	const FVector EndLocation = StartLocation;
 	const ETraceTypeQuery TraceChannel = ETraceTypeQuery::TraceTypeQuery1;
 	const TArray<TObjectPtr<AActor>> ActorsToIgnore{};
 

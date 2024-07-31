@@ -36,7 +36,7 @@ public:
 	FVector FindAvailablePositionOnLedge(FVector LedgeLocation, FHitResult& HitResult, bool& bHit, EDrawDebugTrace::Type DebugType);
 
 	/**
-	* Finds opposite ledge along given direction.
+	* Finds opposite ledge along obstacle top surface at given direction.
 	* @param LedgeTopHitResult is ledge data, should be obtained via FindLedge()
 	* @see FindLedge()
 	* @param ForwardVector Determines direction to search opposite ledge. You may use character forward vector mostly often if obstacles are flat.
