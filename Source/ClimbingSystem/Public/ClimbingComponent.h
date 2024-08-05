@@ -26,6 +26,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Climbing")
 	bool FindLedge(FHitResult& TopHitResult, FHitResult& ForwardHitResult, EDrawDebugTrace::Type DebugType);
 
+	/**
+	* Finds all ledges in given direction along provided Up-vector. Utility method in general.
+	* @param Location Finding starting point.
+	* @param Direction Finding direction or so called forward-vector.
+	* @param Distance
+	* @param Ledges TArray of Ledges. Depending on the orientation it may be LedgeUp or LedgeFront.
+	* @param DebugType Used to draw debug traces.
+	*/
 	UFUNCTION(BlueprintCallable, Category = "Climbing")
 	bool FindLedgesInDirection(FVector Location, FVector Direction, FVector UpVector, float Distance, TArray<FHitResult>& Ledges, EDrawDebugTrace::Type DebugType);
 
@@ -81,11 +89,11 @@ public:
 	float AdditionalDepthCorrection = 1.f;
 
 	// Defines number of top-down traces to find obstacle-top end.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Climbing", meta = (ClampMin = "10"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Climbing", meta = (ClampMin = "1"))
 	int OppositeLedgeFindingTraceCount = 10;
 
-	//
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Climbing", meta = (ClampMin = "10"))
+	// Defines number of traces to detect obstacle end.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Climbing", meta = (ClampMin = "1"))
 	int LedgeFindingTraceAmount = 10;
 
 protected:
