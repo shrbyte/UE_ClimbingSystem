@@ -229,6 +229,19 @@ bool UClimbingComponent::FindOppositeLedgeInDirection(FHitResult LedgeTopHitResu
 	return true;
 }
 
+FVector UClimbingComponent::CalcObstacleTopSurfaceForwardVectorByRightVector(const FHitResult LedgeTopHitResult, const FVector RightVector)
+{
+	const FVector LedgeTopNormal = LedgeTopHitResult.ImpactNormal;
+	return LedgeTopNormal.Cross(RightVector);
+}
+
+FVector UClimbingComponent::CalcObstacleTopSurfaceForwardVectorByLedgeFront(const FHitResult LedgeTopHitResult, const FHitResult LedgeFrontHitResult)
+{
+	const FVector LedgeTopNormal = LedgeTopHitResult.ImpactNormal;
+	const FVector LedgeFrontNormal = LedgeFrontHitResult.ImpactNormal;
+	return CalcObstacleTopSurfaceForwardVectorByRightVector(LedgeTopHitResult, FVector::CrossProduct(LedgeTopNormal, LedgeFrontNormal));
+}
+
 FVector UClimbingComponent::FindAvailablePositionOnLedge(FVector LedgeLocation, FHitResult& HitResult, bool& bHit, EDrawDebugTrace::Type DebugType)
 {
 	const FVector UpVector = Character->GetActorUpVector();

@@ -49,6 +49,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Climbing")
 	bool FindOppositeLedgeInDirection(FHitResult LedgeTopHitResult, FVector ForwardVector, FHitResult& TopHitResult, FHitResult& FrontHitResult, EDrawDebugTrace::Type DebugType);
 
+	// Calculates ledge top forward vector by given right-vector. May be provided with Character right-vector for example.
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Climbing")
+	FVector CalcObstacleTopSurfaceForwardVectorByRightVector(const FHitResult LedgeTopHitResult, const FVector RightVector);
+
+	// Calculates ledge top forward-vector.
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Climbing")
+	FVector CalcObstacleTopSurfaceForwardVectorByLedgeFront(const FHitResult LedgeTopHitResult, const FHitResult LedgeFrontHitResult);
+
 	// Max forward distance of the ledge.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Climbing", meta = (ClampMin = "0"))
 	float LedgeFindingDistance = 200.f;
