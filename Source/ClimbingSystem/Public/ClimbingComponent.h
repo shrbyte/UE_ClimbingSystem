@@ -28,8 +28,9 @@ public:
 
 	/**
 	* Finds all ledges in given direction along provided Up-vector. Utility method in general.
-	* @param Location Finding starting point.
-	* @param Direction Finding direction or so called forward-vector.
+	* @param Location Finding starting point. It is expected that the impact location of the obstacle surface will be provided.
+	* @param Direction Finding direction or so called forward-vector. It is expected that the tangent vector of the obstacle surface will be provided.
+	* @param UpVector Used to calculate additional traces. It is expected that the normal of the obstacle surface will be provided.
 	* @param Distance
 	* @param Ledges TArray of Ledges. Depending on the orientation it may be LedgeUp or LedgeFront.
 	* @param DebugType Used to draw debug traces.
