@@ -26,6 +26,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Climbing")
 	bool FindLedge(FHitResult& TopHitResult, FHitResult& ForwardHitResult, EDrawDebugTrace::Type DebugType);
 
+	UFUNCTION(BlueprintCallable, Category = "Climbing")
+	bool FindLedgesInDirection(FVector Location, FVector Direction, FVector UpVector, float Distance, TArray<FHitResult>& Ledges, EDrawDebugTrace::Type DebugType);
+
 	/**
 	* Finds valid position for character on-top of the ledge based on character capsule halfheight and radius.
 	* @param LedgeLocation
@@ -80,6 +83,10 @@ public:
 	// Defines number of top-down traces to find obstacle-top end.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Climbing", meta = (ClampMin = "10"))
 	int OppositeLedgeFindingTraceCount = 10;
+
+	//
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Climbing", meta = (ClampMin = "10"))
+	int LedgeFindingTraceAmount = 10;
 
 protected:
 

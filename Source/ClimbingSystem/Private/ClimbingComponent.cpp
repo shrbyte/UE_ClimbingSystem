@@ -163,6 +163,52 @@ bool UClimbingComponent::FindLedge(FHitResult& TopHitResult, FHitResult& Forward
 	return false;
 }
 
+bool UClimbingComponent::FindLedgesInDirection(FVector Location, FVector Direction, FVector UpVector, float Distance, TArray<FHitResult>& Ledges, EDrawDebugTrace::Type DebugType)
+{
+	const ETraceTypeQuery TraceChannel = ETraceTypeQuery::TraceTypeQuery1;
+	const TArray<TObjectPtr<AActor>> ActorsToIgnore{};
+
+	const FVector StartLocation = Location;
+	const FVector EndLocation = Location + Direction * Distance;
+
+	FHitResult TempHitResult;
+
+	// First trace along forward vector.
+	bool bHit = UKismetSystemLibrary::LineTraceSingle(Character, StartLocation, EndLocation, TraceChannel, false, ActorsToIgnore, DebugType, TempHitResult, true, FLinearColor::Red);
+	
+	FVector TopDownTracesTargetLocation = EndLocation;
+	if (bHit)
+	{
+		TopDownTracesTargetLocation = TempHitResult.ImpactPoint;
+	}
+
+	float Alpha = 0.f;
+	// Distance between top-down trace segments. Used in BackTrace to find previous TopDownTraceEndLocation.
+	const float SegmentLength = FVector::Dist(StartLocation, FMath::Lerp(StartLocation, TopDownTracesTargetLocation, UKismetMathLibrary::NormalizeToRange(1, 0, LedgeFindingTraceAmount)));
+
+	for (auto it = 1; it <= LedgeFindingTraceAmount; it++)
+	{
+		Alpha = UKismetMathLibrary::NormalizeToRange(it, 0, LedgeFindingTraceAmount);
+		FVector TopDownTracesStartLocation = FMath::Lerp(StartLocation, TopDownTracesTargetLocation, Alpha);
+		FVector TopDownTracesEndLocation = TopDownTracesStartLocation + UpVector * (-1) * AdditionalHeightCorrection + UpVector * (-1) + UpVector * (-1) * AdditionalDepthCorrection;
+
+		bHit = UKismetSystemLibrary::LineTraceSingle(Character, TopDownTracesStartLocation, TopDownTracesEndLocation, TraceChannel, false, ActorsToIgnore, DebugType, TempHitResult, true, FLinearColor::Red);
+		if (bHit)
+		{
+			continue;
+		}
+
+		FVector BackTraceStartLocation = TopDownTracesEndLocation;
+		FVector BackTraceEndLocation = BackTraceStartLocation + Direction * (-1) * SegmentLength;
+		bHit = UKismetSystemLibrary::LineTraceSingle(Character, BackTraceStartLocation, BackTraceEndLocation, TraceChannel, false, ActorsToIgnore, DebugType, TempHitResult, true, FLinearColor::White);
+		if (bHit)
+		{
+			Ledges.Add(FHitResult{ TempHitResult });
+		}
+	}
+	return not Ledges.IsEmpty();
+}
+
 bool UClimbingComponent::FindOppositeLedgeInDirection(FHitResult LedgeTopHitResult, FVector ForwardVector, FHitResult& TopHitResult, FHitResult& FrontHitResult, EDrawDebugTrace::Type DebugType)
 {
 	const FVector LedgeLocation = LedgeTopHitResult.ImpactPoint;
