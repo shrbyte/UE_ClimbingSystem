@@ -174,19 +174,34 @@ bool UClimbingComponent::FindOppositeLedgeInDirection(FHitResult LedgeTopHitResu
 
 	FVector StartLocation = LedgeLocation + LedgeNormal * AdditionalHeightCorrection;
 	FVector EndLocation = StartLocation + ForwardVectorWithOffset;
+	FVector TopDownTracesTargetLocation = EndLocation;
 	FHitResult TempHitResult;
+
 	// First trace along forward vector.
 	bool bHit = UKismetSystemLibrary::LineTraceSingle(Character, StartLocation, EndLocation, TraceChannel, false, ActorsToIgnore, DebugType, TempHitResult, true, FLinearColor::Red);
 	if (bHit)
 	{
-		return false;
+		TopDownTracesTargetLocation = TempHitResult.ImpactPoint;
 	}
-	
-	// Second top-down trace along up vector. Checks if the obstacle top surface has ended - if so continue.
-	StartLocation = EndLocation;
-	EndLocation = StartLocation + LedgeNormal * (-1) * AdditionalHeightCorrection + LedgeNormal * (-1) + LedgeNormal * (-1) * AdditionalDepthCorrection;
-	bHit = UKismetSystemLibrary::LineTraceSingle(Character, StartLocation, EndLocation, TraceChannel, false, ActorsToIgnore, DebugType, TempHitResult, true, FLinearColor::Red);
-	if (bHit)
+
+	bool bObstacleEndFound = false;
+	float Alpha = 0.f;
+	for (auto it = 1; it <= OppositeLedgeFindingTraceCount; it++)
+	{
+		Alpha = UKismetMathLibrary::NormalizeToRange(it, 0, OppositeLedgeFindingTraceCount);
+		FVector TopDownTracesStartLocation = FMath::Lerp(StartLocation, TopDownTracesTargetLocation, Alpha);
+		FVector TopDownTracesEndLocation = TopDownTracesStartLocation + LedgeNormal * (-1) * AdditionalHeightCorrection + LedgeNormal * (-1) + LedgeNormal * (-1) * AdditionalDepthCorrection;
+
+		bHit = UKismetSystemLibrary::LineTraceSingle(Character, TopDownTracesStartLocation, TopDownTracesEndLocation, TraceChannel, false, ActorsToIgnore, DebugType, TempHitResult, true, FLinearColor::Red);
+		if (not bHit)
+		{
+			StartLocation = TopDownTracesStartLocation;
+			EndLocation = TopDownTracesEndLocation;
+			bObstacleEndFound = true;
+			break;
+		}
+	}
+	if (not bObstacleEndFound)
 	{
 		return false;
 	}

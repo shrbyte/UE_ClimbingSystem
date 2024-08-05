@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "ClimbingComponent.generated.h"
 
 UCLASS( BlueprintType, Blueprintable, ClassGroup=(Climbing),DisplayName = "Climbing Component", meta = (BlueprintSpawnableComponent))
@@ -36,13 +37,13 @@ public:
 	FVector FindAvailablePositionOnLedge(FVector LedgeLocation, FHitResult& HitResult, bool& bHit, EDrawDebugTrace::Type DebugType);
 
 	/**
-	* Finds opposite ledge along obstacle top surface at given direction.
+	* Finds opposite ledge along obstacle top surface at given direction. Uses OppositeLedgeFindingTraceCount to be deterministic.
 	* @param LedgeTopHitResult is ledge data, should be obtained via FindLedge()
 	* @see FindLedge()
 	* @param ForwardVector Determines direction to search opposite ledge. You may use character forward vector mostly often if obstacles are flat.
-	* @param TopHitResult
-	* @param FrontHitResult
-	* @param DebugType
+	* @param TopHitResult is the top point of ledge corner.
+	* @param FrontHitResult is the front point of ledge corner.
+	* @param DebugType Used to draw debug traces.
 	* @result Returns true if ledge found, false otherwise.
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Climbing")
@@ -67,6 +68,10 @@ public:
 	// Little adjustment to shift top-down line trace deeper to the obstacle.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Climbing", meta = (ClampMin = "0"))
 	float AdditionalDepthCorrection = 1.f;
+
+	// Defines number of top-down traces to find obstacle-top end.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Climbing", meta = (ClampMin = "10"))
+	int OppositeLedgeFindingTraceCount = 10;
 
 protected:
 
