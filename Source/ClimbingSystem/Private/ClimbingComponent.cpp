@@ -149,13 +149,33 @@ bool UClimbingComponent::FindLedge(FHitResult& TopHitResult, FHitResult& Forward
 	FHitResult ObstacleHitResult;
 	if (const bool bObstacleHit = this->FindObstacle(ObstacleHitResult, DebugType))
 	{
-		FHitResult ObstacleLedgeTopHitResult;
-		if (const bool bObstacleLedgeTopHit = this->FindObstacleLedgeTop(ObstacleHitResult.ImpactPoint, ObstacleHitResult.ImpactNormal, ObstacleLedgeTopHitResult, DebugType) )
+		const FVector CharacterUpVector = Character->GetActorUpVector();
+		const FVector ImpactRightVector = ObstacleHitResult.ImpactNormal.Cross(CharacterUpVector).GetSafeNormal();
+		const FVector ImpactTangent = ObstacleHitResult.ImpactNormal.Cross(ImpactRightVector).GetSafeNormal() * (-1);
+		
+		// Shifts impact location to character bottom.
+		const float CapsuleHalfHeight = Character->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+		const float ImpactOffsetFromCapsuleCenter = FVector::Dist(ObstacleHitResult.ImpactPoint * CharacterUpVector, Character->GetActorLocation() * CharacterUpVector - CapsuleHalfHeight * CharacterUpVector);
+		const FVector ImpactOffset = ImpactOffsetFromCapsuleCenter * ImpactTangent;
+		const FVector ImpactPoint = ObstacleHitResult.ImpactPoint - ImpactOffset;
+
+		// Small offset along ImpactNormal to prevent trace collision.
+		const FVector Location = ImpactPoint + ObstacleHitResult.ImpactNormal;
+
+		TArray<FHitResult> Ledges;
+		if (const bool bLedgesInDirection = this->FindLedgesInDirection(Location, ImpactTangent, ObstacleHitResult.ImpactNormal, LedgeFindingMaxHeight, Ledges, DebugType))
 		{
-			if (this->IsObstacleTopReachable(ObstacleLedgeTopHitResult.ImpactPoint, DebugType))
+			const FHitResult Ledge = Ledges.Last();
+			const FVector LedgeTopLocation = Ledge.ImpactPoint;
+			const FVector LedgeTopNormal = Ledge.ImpactNormal;
+			const FVector LedgesRightVector = FVector::CrossProduct(LedgeTopNormal, ObstacleHitResult.ImpactNormal).GetSafeNormal();
+			const FVector LedgeTopLocationWithOffset = Ledge.ImpactPoint + LedgeTopNormal;
+			const FVector LedgeTopTangentNegative = LedgeTopNormal.Cross(LedgesRightVector).GetSafeNormal() * (-1.0);
+
+			if (const bool bFrontLedgesInDirection = this->FindLedgesInDirection(LedgeTopLocationWithOffset, LedgeTopTangentNegative, LedgeTopNormal, AdditionalDepthCorrection, Ledges, DebugType))
 			{
-				TopHitResult = ObstacleLedgeTopHitResult;
-				const bool bObstacleLedgeForwardHit = this->FindObstacleLedgeForward(TopHitResult.ImpactPoint, ForwardHitResult, DebugType);
+				TopHitResult = Ledge;
+				ForwardHitResult = Ledges.Last();
 				return true;
 			}
 		}
@@ -172,7 +192,6 @@ bool UClimbingComponent::FindLedgesInDirection(FVector Location, FVector Directi
 	const FVector EndLocation = Location + Direction * Distance;
 
 	FHitResult TempHitResult;
-
 	// First trace along forward vector.
 	bool bHit = UKismetSystemLibrary::LineTraceSingle(Character, StartLocation, EndLocation, TraceChannel, false, ActorsToIgnore, DebugType, TempHitResult, true, FLinearColor::Red);
 	
@@ -184,13 +203,13 @@ bool UClimbingComponent::FindLedgesInDirection(FVector Location, FVector Directi
 
 	float Alpha = 0.f;
 	// Distance between top-down trace segments. Used in BackTrace to find previous TopDownTraceEndLocation.
-	const float SegmentLength = FVector::Dist(StartLocation, FMath::Lerp(StartLocation, TopDownTracesTargetLocation, UKismetMathLibrary::NormalizeToRange(1, 0, LedgeFindingTraceAmount)));
-
+	const double SegmentLength = FVector::Dist(StartLocation, TopDownTracesTargetLocation) / (double)LedgeFindingTraceAmount;
+	UE_LOGFMT(LogTemp, Log, "[ClimbingComponent] : TraceLenght = {0}, SegmentLenght = {1} ", FVector::Dist(StartLocation, TopDownTracesTargetLocation), SegmentLength);
 	for (auto it = 1; it <= LedgeFindingTraceAmount; it++)
 	{
 		Alpha = UKismetMathLibrary::NormalizeToRange(it, 0, LedgeFindingTraceAmount);
 		FVector TopDownTracesStartLocation = FMath::Lerp(StartLocation, TopDownTracesTargetLocation, Alpha);
-		FVector TopDownTracesEndLocation = TopDownTracesStartLocation + UpVector * (-1) * AdditionalHeightCorrection + UpVector * (-1) + UpVector * (-1) * AdditionalDepthCorrection;
+		FVector TopDownTracesEndLocation = TopDownTracesStartLocation  + UpVector * (-1.f) * AdditionalDepthCorrection;
 
 		bHit = UKismetSystemLibrary::LineTraceSingle(Character, TopDownTracesStartLocation, TopDownTracesEndLocation, TraceChannel, false, ActorsToIgnore, DebugType, TempHitResult, true, FLinearColor::Red);
 		if (bHit)
@@ -199,7 +218,7 @@ bool UClimbingComponent::FindLedgesInDirection(FVector Location, FVector Directi
 		}
 
 		FVector BackTraceStartLocation = TopDownTracesEndLocation;
-		FVector BackTraceEndLocation = BackTraceStartLocation + Direction * (-1) * SegmentLength;
+		FVector BackTraceEndLocation = BackTraceStartLocation + Direction * (-1.0) * SegmentLength;
 		bHit = UKismetSystemLibrary::LineTraceSingle(Character, BackTraceStartLocation, BackTraceEndLocation, TraceChannel, false, ActorsToIgnore, DebugType, TempHitResult, true, FLinearColor::White);
 		if (bHit)
 		{
