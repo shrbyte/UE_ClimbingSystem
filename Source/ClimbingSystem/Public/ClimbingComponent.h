@@ -24,7 +24,7 @@ public:
 	* @return True if valid ledge in-front, false otherwise.
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Climbing")
-	bool FindLedge(FHitResult& TopHitResult, FHitResult& ForwardHitResult, EDrawDebugTrace::Type DebugType);
+	bool FindLedge(FHitResult& TopHitResult, FHitResult& ForwardHitResult, EDrawDebugTrace::Type DebugType = EDrawDebugTrace::None);
 
 	/**
 	* Finds all ledges in given direction along provided Up-vector. Utility method in general.
@@ -36,7 +36,7 @@ public:
 	* @param DebugType Used to draw debug traces.
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Climbing")
-	bool FindLedgesInDirection(FVector Location, FVector Direction, FVector UpVector, float Distance, TArray<FHitResult>& Ledges, EDrawDebugTrace::Type DebugType);
+	bool FindLedgesInDirection(FVector Location, FVector Direction, FVector UpVector, float Distance, TArray<FHitResult>& Ledges, EDrawDebugTrace::Type DebugType = EDrawDebugTrace::None);
 
 	/**
 	* Finds valid position for character on-top of the ledge based on character capsule halfheight and radius.
@@ -46,7 +46,7 @@ public:
 	* @return Valid location. Returns zero-vector if none.
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Climbing")
-	FVector FindAvailablePositionOnLedge(FVector LedgeLocation, FHitResult& HitResult, bool& bHit, EDrawDebugTrace::Type DebugType);
+	FVector FindAvailablePositionOnLedge(FVector LedgeLocation, FHitResult& HitResult, bool& bHit, EDrawDebugTrace::Type DebugType = EDrawDebugTrace::None);
 
 	/**
 	* Finds opposite ledge along obstacle top surface at given direction. Uses OppositeLedgeFindingTraceCount to be deterministic.
@@ -59,7 +59,7 @@ public:
 	* @result Returns true if ledge found, false otherwise.
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Climbing")
-	bool FindOppositeLedgeInDirection(FHitResult LedgeTopHitResult, FVector ForwardVector, FHitResult& TopHitResult, FHitResult& FrontHitResult, EDrawDebugTrace::Type DebugType);
+	bool FindOppositeLedgeInDirection(FHitResult LedgeTopHitResult, FVector ForwardVector, FHitResult& TopHitResult, FHitResult& FrontHitResult, EDrawDebugTrace::Type DebugType = EDrawDebugTrace::None);
 
 	// Calculates ledge top forward vector by given right-vector. May be provided with Character right-vector for example.
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Climbing")
@@ -111,7 +111,7 @@ protected:
 	* @return True if obstacle exist, false otherwise.
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Climbing")
-	bool FindObstacle(FHitResult& HitResult, EDrawDebugTrace::Type DebugType);
+	bool FindObstacle(FHitResult& HitResult, EDrawDebugTrace::Type DebugType = EDrawDebugTrace::None);
 
 	/**
 	* Checks if ObstacleTopImpactLocation is reacheble. Uses line trace from characters capsule top to ObstacleTopImpactLocation.
@@ -120,7 +120,7 @@ protected:
 	* @return True if point reachable, false otherwise.
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Climbing")
-	bool IsObstacleTopReachable(FVector ObstacleTopImpactLocation, EDrawDebugTrace::Type DebugType);
+	bool IsObstacleTopReachable(FVector ObstacleTopImpactLocation, EDrawDebugTrace::Type DebugType = EDrawDebugTrace::None);
 
 	/**
 	* Calculates ledge height based on distance along Z-axis from characters capsule bottom point to LedgeLocation.
