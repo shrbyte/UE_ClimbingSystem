@@ -18,7 +18,7 @@ void UClimbingComponent::InitializeComponent()
 	Character = Cast<ACharacter>(GetOwner());
 }
 
-bool UClimbingComponent::FindObstacle(FHitResult& HitResult, EDrawDebugTrace::Type DebugType)
+bool UClimbingComponent::FindObstacle(FHitResult& HitResult, ETraceTypeQuery TraceChannel, EDrawDebugTrace::Type DebugType)
 {
 	const float Radius = Character->GetCapsuleComponent()->GetUnscaledCapsuleRadius();
 	const float HalfHeight = Character->GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight();
@@ -30,7 +30,6 @@ bool UClimbingComponent::FindObstacle(FHitResult& HitResult, EDrawDebugTrace::Ty
 
 	const FVector StartLocation = Character->GetActorLocation();
 	const FVector EndLocation = StartLocation + ScaledForwardVector;
-	const ETraceTypeQuery TraceChannel = ETraceTypeQuery::TraceTypeQuery1;
 	const TArray<TObjectPtr<AActor>> ActorToIgnore{};
 
 	const bool bHit = UKismetSystemLibrary::CapsuleTraceSingle(Character, StartLocation, EndLocation, Radius, HalfHeight, TraceChannel, false, ActorToIgnore, DebugType, HitResult, true, FLinearColor::Red);
@@ -43,14 +42,13 @@ bool UClimbingComponent::FindObstacle(FHitResult& HitResult, EDrawDebugTrace::Ty
 	return bHit;
 }
 
-bool UClimbingComponent::IsObstacleTopReachable(FVector ObstacleTopImpactLocation, EDrawDebugTrace::Type DebugType)
+bool UClimbingComponent::IsObstacleTopReachable(FVector ObstacleTopImpactLocation, ETraceTypeQuery TraceChannel, EDrawDebugTrace::Type DebugType)
 {
 	const FVector UpVector = Character->GetActorUpVector();
 	const float HalfHeight = Character->GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight();
 	const FVector StartLocation = Character->GetActorLocation() + UpVector * HalfHeight;
 	const FVector EndLocation = ObstacleTopImpactLocation;
 
-	const ETraceTypeQuery TraceChannel = ETraceTypeQuery::TraceTypeQuery1;
 	const TArray<TObjectPtr<AActor>> ActorsToIgnore{};
 	FHitResult HitResult;
 	const bool bHit = UKismetSystemLibrary::LineTraceSingle(Character, StartLocation, EndLocation, TraceChannel, false, ActorsToIgnore, DebugType, HitResult, true, FLinearColor::White);
@@ -87,10 +85,10 @@ bool UClimbingComponent::EnableMovementAndCollision()
 	return true;
 }
 
-bool UClimbingComponent::FindLedge(FHitResult& TopHitResult, FHitResult& ForwardHitResult, EDrawDebugTrace::Type DebugType)
+bool UClimbingComponent::FindLedge(FHitResult& TopHitResult, FHitResult& ForwardHitResult, ETraceTypeQuery TraceChannel, EDrawDebugTrace::Type DebugType)
 {
 	FHitResult ObstacleHitResult;
-	if (const bool bObstacleHit = this->FindObstacle(ObstacleHitResult, DebugType))
+	if (const bool bObstacleHit = this->FindObstacle(ObstacleHitResult, TraceChannel, DebugType))
 	{
 		const FVector CharacterUpVector = Character->GetActorUpVector();
 		const FVector ImpactRightVector = ObstacleHitResult.ImpactNormal.Cross(CharacterUpVector).GetSafeNormal();
@@ -106,7 +104,7 @@ bool UClimbingComponent::FindLedge(FHitResult& TopHitResult, FHitResult& Forward
 		const FVector Location = ImpactPoint + ObstacleHitResult.ImpactNormal;
 
 		TArray<FHitResult> Ledges;
-		if (const bool bLedgesInDirection = this->FindLedgesInDirection(Location, ImpactTangent, ObstacleHitResult.ImpactNormal, LedgeFindingMaxHeight, Ledges, DebugType))
+		if (const bool bLedgesInDirection = this->FindLedgesInDirection(Location, ImpactTangent, ObstacleHitResult.ImpactNormal, LedgeFindingMaxHeight, Ledges, TraceChannel, DebugType))
 		{
 			const FHitResult Ledge = Ledges.Last();
 			const FVector LedgeTopLocation = Ledge.ImpactPoint;
@@ -115,7 +113,7 @@ bool UClimbingComponent::FindLedge(FHitResult& TopHitResult, FHitResult& Forward
 			const FVector LedgeTopLocationWithOffset = Ledge.ImpactPoint + LedgeTopNormal;
 			const FVector LedgeTopTangentNegative = LedgeTopNormal.Cross(LedgesRightVector).GetSafeNormal() * (-1.0);
 
-			if (const bool bFrontLedgesInDirection = this->FindLedgesInDirection(LedgeTopLocationWithOffset, LedgeTopTangentNegative, LedgeTopNormal, AdditionalDepthCorrection, Ledges, DebugType))
+			if (const bool bFrontLedgesInDirection = this->FindLedgesInDirection(LedgeTopLocationWithOffset, LedgeTopTangentNegative, LedgeTopNormal, AdditionalDepthCorrection, Ledges, TraceChannel, DebugType))
 			{
 				TopHitResult = Ledge;
 				ForwardHitResult = Ledges.Last();
@@ -126,9 +124,8 @@ bool UClimbingComponent::FindLedge(FHitResult& TopHitResult, FHitResult& Forward
 	return false;
 }
 
-bool UClimbingComponent::FindLedgesInDirection(FVector Location, FVector Direction, FVector UpVector, float Distance, TArray<FHitResult>& Ledges, EDrawDebugTrace::Type DebugType)
+bool UClimbingComponent::FindLedgesInDirection(FVector Location, FVector Direction, FVector UpVector, float Distance, TArray<FHitResult>& Ledges, ETraceTypeQuery TraceChannel, EDrawDebugTrace::Type DebugType)
 {
-	const ETraceTypeQuery TraceChannel = ETraceTypeQuery::TraceTypeQuery1;
 	const TArray<TObjectPtr<AActor>> ActorsToIgnore{};
 
 	const FVector StartLocation = Location;
@@ -147,7 +144,6 @@ bool UClimbingComponent::FindLedgesInDirection(FVector Location, FVector Directi
 	float Alpha = 0.f;
 	// Distance between top-down trace segments. Used in BackTrace to find previous TopDownTraceEndLocation.
 	const double SegmentLength = FVector::Dist(StartLocation, TopDownTracesTargetLocation) / (double)LedgeFindingTraceAmount;
-	UE_LOGFMT(LogTemp, Log, "[ClimbingComponent] : TraceLenght = {0}, SegmentLenght = {1} ", FVector::Dist(StartLocation, TopDownTracesTargetLocation), SegmentLength);
 	for (auto it = 1; it <= LedgeFindingTraceAmount; it++)
 	{
 		Alpha = UKismetMathLibrary::NormalizeToRange(it, 0, LedgeFindingTraceAmount);
@@ -171,13 +167,12 @@ bool UClimbingComponent::FindLedgesInDirection(FVector Location, FVector Directi
 	return not Ledges.IsEmpty();
 }
 
-bool UClimbingComponent::FindOppositeLedgeInDirection(FHitResult LedgeTopHitResult, FVector ForwardVector, FHitResult& TopHitResult, FHitResult& FrontHitResult, EDrawDebugTrace::Type DebugType)
+bool UClimbingComponent::FindOppositeLedgeInDirection(FHitResult LedgeTopHitResult, FVector ForwardVector, FHitResult& TopHitResult, FHitResult& FrontHitResult, ETraceTypeQuery TraceChannel, EDrawDebugTrace::Type DebugType)
 {
 	const FVector LedgeLocation = LedgeTopHitResult.ImpactPoint;
 	const FVector LedgeNormal = LedgeTopHitResult.ImpactNormal;
 	const FVector ForwardVectorWithOffset = ForwardVector * MaxObstacleDepth;
 
-	const ETraceTypeQuery TraceChannel = ETraceTypeQuery::TraceTypeQuery1;
 	const TArray<TObjectPtr<AActor>> ActorsToIgnore{};
 
 	FVector StartLocation = LedgeLocation + LedgeNormal * AdditionalHeightCorrection;
@@ -250,7 +245,7 @@ FVector UClimbingComponent::CalcObstacleTopSurfaceForwardVectorByLedgeFront(cons
 	return CalcObstacleTopSurfaceForwardVectorByRightVector(LedgeTopHitResult, FVector::CrossProduct(LedgeTopNormal, LedgeFrontNormal));
 }
 
-FVector UClimbingComponent::FindAvailablePositionOnLedge(FVector LedgeLocation, FHitResult& HitResult, bool& bHit, EDrawDebugTrace::Type DebugType)
+FVector UClimbingComponent::FindAvailablePositionOnLedge(FVector LedgeLocation, FHitResult& HitResult, bool& bHit, ETraceTypeQuery TraceChannel, EDrawDebugTrace::Type DebugType)
 {
 	const FVector UpVector = Character->GetActorUpVector();
 	const FVector ForwardVector = Character->GetActorForwardVector();
@@ -259,7 +254,6 @@ FVector UClimbingComponent::FindAvailablePositionOnLedge(FVector LedgeLocation, 
 	
 	const FVector StartLocation = LedgeLocation + UpVector * HalfHeight + UpVector;
 	const FVector EndLocation = StartLocation;
-	const ETraceTypeQuery TraceChannel = ETraceTypeQuery::TraceTypeQuery1;
 	const TArray<TObjectPtr<AActor>> ActorsToIgnore{};
 
 	bHit = UKismetSystemLibrary::CapsuleTraceSingle(Character, StartLocation, EndLocation, Radius, HalfHeight, TraceChannel, false, ActorsToIgnore, DebugType, HitResult, true, FLinearColor::Red);
