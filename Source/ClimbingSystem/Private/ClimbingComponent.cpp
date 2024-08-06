@@ -71,27 +71,6 @@ float UClimbingComponent::CalcLedgeHeight(FVector LedgeLocation)
 	return abs(LedgeLocation.Z - CharacterBottomLocation.Z);
 }
 
-bool UClimbingComponent::FindObstacleLedgeForward(const FVector ObstacleTopImpactLocation, FHitResult& HitResult, EDrawDebugTrace::Type DebugType)
-{
-	const FVector CharacterLocation = Character->GetActorLocation();
-	const FVector ForwardVector = Character->GetActorForwardVector();
-	const FVector UpVector = Character->GetActorUpVector();
-	const FVector StartLocation = FVector{CharacterLocation.X, CharacterLocation.Y, ObstacleTopImpactLocation.Z} - UpVector * AdditionalDepthCorrection;
-	const FVector EndLocation = ObstacleTopImpactLocation + ForwardVector * AdditionalHeightCorrection - UpVector * AdditionalDepthCorrection;
-
-	const ETraceTypeQuery TraceChannel = ETraceTypeQuery::TraceTypeQuery1;
-	const TArray<TObjectPtr<AActor>> ActorsToIgnore{};
-
-	const bool bHit = UKismetSystemLibrary::LineTraceSingle(Character, StartLocation, EndLocation, TraceChannel, false, ActorsToIgnore, DebugType, HitResult, true, FLinearColor::White);
-
-	if (DebugType != EDrawDebugTrace::None)
-	{
-		UE_LOGFMT(LogTemp, Log, "[ClimbingComponent] : FindObstacleLedgeForward() = {0} ", bHit);
-	}
-
-	return bHit;
-}
-
 bool UClimbingComponent::DisableMovementAndCollision()
 {
 	Character->GetCharacterMovement()->StopMovementImmediately();

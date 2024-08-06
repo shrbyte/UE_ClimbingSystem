@@ -130,12 +130,6 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Climbing")
 	float CalcLedgeHeight(FVector LedgeLocation);
 
-	/**
-	* Finds ledge face point in-front of character based on TopImpactLocation and forward vector.
-	*/
-	UFUNCTION(BlueprintCallable, Category = "Climbing")
-	bool FindObstacleLedgeForward(FVector ObstacleTopImpactLocation, FHitResult& HitResult, EDrawDebugTrace::Type DebugType);
-
 	UFUNCTION(BlueprintCallable, Category = "Climbing")
 	bool DisableMovementAndCollision();
 
