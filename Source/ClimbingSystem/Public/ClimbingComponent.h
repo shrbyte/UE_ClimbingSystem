@@ -114,17 +114,6 @@ protected:
 	bool FindObstacle(FHitResult& HitResult, EDrawDebugTrace::Type DebugType);
 
 	/**
-	* Finds top surface of the obstacle in-front, based on impact location and MaxLedgeHeight. Returns nearest point - ledge corner *almost*
-	* @param ObstacleImpactLocation is the in-front obstacle impact location.
-	* @param NegObstacleFaceNormal negative obstacle face normal. Negative used for character forward vector compatibility.
-	* @param HitResult top-down line trace result.
-	* @param DebugType Used to draw debug trace.
-	* @return True if obstacles height valid, false otherwise.
-	*/
-	UFUNCTION(BlueprintCallable, Category = "Climbing")
-	bool FindObstacleLedgeTop(FVector ObstacleImpactLocation, FVector NegObstacleFaceNormal, FHitResult& HitResult, EDrawDebugTrace::Type DebugType);
-
-	/**
 	* Checks if ObstacleTopImpactLocation is reacheble. Uses line trace from characters capsule top to ObstacleTopImpactLocation.
 	* @param ObstacleTopImpactLocation is location of the obstacles top surface(ledge corner).
 	* @param DebugType Used to draw debug trace.
