@@ -132,7 +132,7 @@ bool UClimbingComponent::FindLedgesInDirection(FVector Location, FVector Directi
 	const TArray<TObjectPtr<AActor>> ActorsToIgnore{};
 
 	const FVector StartLocation = Location;
-	const FVector EndLocation = Location + Direction * Distance;
+	const FVector EndLocation = Location + (Distance + AdditionalHeightCorrection) * Direction;
 
 	FHitResult TempHitResult;
 	// First trace along forward vector.
