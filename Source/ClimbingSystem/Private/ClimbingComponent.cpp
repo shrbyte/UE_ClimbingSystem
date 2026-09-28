@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyleft.
 
 
 #include "ClimbingComponent.h"
@@ -20,6 +20,11 @@ void UClimbingComponent::InitializeComponent()
 
 bool UClimbingComponent::FindObstacle(FHitResult& HitResult, ETraceTypeQuery TraceChannel, EDrawDebugTrace::Type DebugType)
 {
+	if (not Character)
+	{
+		return false;
+	}
+
 	const float Radius = Character->GetCapsuleComponent()->GetUnscaledCapsuleRadius();
 	const float HalfHeight = Character->GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight();
 
@@ -44,6 +49,11 @@ bool UClimbingComponent::FindObstacle(FHitResult& HitResult, ETraceTypeQuery Tra
 
 bool UClimbingComponent::IsObstacleTopReachable(FVector ObstacleTopImpactLocation, ETraceTypeQuery TraceChannel, EDrawDebugTrace::Type DebugType)
 {
+	if (not Character)
+	{
+		return false;
+	}
+
 	const FVector UpVector = Character->GetActorUpVector();
 	const float HalfHeight = Character->GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight();
 	const FVector StartLocation = Character->GetActorLocation() + UpVector * HalfHeight;
@@ -63,30 +73,24 @@ bool UClimbingComponent::IsObstacleTopReachable(FVector ObstacleTopImpactLocatio
 
 float UClimbingComponent::CalcLedgeHeight(FVector LedgeLocation)
 {
+	if (not Character)
+	{
+		return -1.f;
+	}
+
 	const FVector CharacterLocation = Character->GetActorLocation();
 	const float HalfHeight = Character->GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight();
 	const FVector CharacterBottomLocation = CharacterLocation - FVector{0, 0, CharacterLocation.Z - HalfHeight};
 	return abs(LedgeLocation.Z - CharacterBottomLocation.Z);
 }
 
-bool UClimbingComponent::DisableMovementAndCollision()
-{
-	Character->GetCharacterMovement()->StopMovementImmediately();
-	Character->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Flying);
-	// Collision...
-	//
-	return true;
-}
-bool UClimbingComponent::EnableMovementAndCollision()
-{
-	Character->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Falling);
-	// Collision...
-	//
-	return true;
-}
-
 bool UClimbingComponent::FindLedge(FHitResult& TopHitResult, FHitResult& ForwardHitResult, ETraceTypeQuery TraceChannel, EDrawDebugTrace::Type DebugType)
 {
+	if (not Character)
+	{
+		return false;
+	}
+
 	FHitResult ObstacleHitResult;
 	if (const bool bObstacleHit = this->FindObstacle(ObstacleHitResult, TraceChannel, DebugType))
 	{
@@ -126,6 +130,11 @@ bool UClimbingComponent::FindLedge(FHitResult& TopHitResult, FHitResult& Forward
 
 bool UClimbingComponent::FindLedgesInDirection(FVector Location, FVector Direction, FVector UpVector, float Distance, TArray<FHitResult>& Ledges, ETraceTypeQuery TraceChannel, EDrawDebugTrace::Type DebugType)
 {
+	if (not Character)
+	{
+		return false;
+	}
+
 	const TArray<TObjectPtr<AActor>> ActorsToIgnore{};
 
 	const FVector StartLocation = Location;
@@ -169,6 +178,11 @@ bool UClimbingComponent::FindLedgesInDirection(FVector Location, FVector Directi
 
 bool UClimbingComponent::FindOppositeLedgeInDirection(FHitResult LedgeTopHitResult, FVector ForwardVector, FHitResult& TopHitResult, FHitResult& FrontHitResult, ETraceTypeQuery TraceChannel, EDrawDebugTrace::Type DebugType)
 {
+	if (not Character)
+	{
+		return false;
+	}
+
 	const FVector LedgeLocation = LedgeTopHitResult.ImpactPoint;
 	const FVector LedgeNormal = LedgeTopHitResult.ImpactNormal;
 	const FVector ForwardVectorWithOffset = ForwardVector * MaxObstacleDepth;
@@ -247,6 +261,12 @@ FVector UClimbingComponent::CalcObstacleTopSurfaceForwardVectorByLedgeFront(cons
 
 FVector UClimbingComponent::FindAvailablePositionOnLedge(FVector LedgeLocation, FHitResult& HitResult, bool& bHit, ETraceTypeQuery TraceChannel, EDrawDebugTrace::Type DebugType)
 {
+	if (not Character)
+	{
+		bHit = true;
+		return FVector::Zero();
+	}
+
 	const FVector UpVector = Character->GetActorUpVector();
 	const FVector ForwardVector = Character->GetActorForwardVector();
 	const float Radius = Character->GetCapsuleComponent()->GetUnscaledCapsuleRadius();

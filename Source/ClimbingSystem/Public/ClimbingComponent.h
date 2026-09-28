@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyleft.
 
 #pragma once
 
@@ -8,13 +8,53 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "ClimbingComponent.generated.h"
 
-UCLASS( BlueprintType, Blueprintable, ClassGroup=(Climbing),DisplayName = "Climbing Component", meta = (BlueprintSpawnableComponent))
+UCLASS( BlueprintType, Blueprintable, ClassGroup=(Climbing), DisplayName = "Climbing Component", meta = (BlueprintSpawnableComponent))
 class CLIMBINGSYSTEM_API UClimbingComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:	
+
 	UClimbingComponent();
+
+protected:
+
+	virtual void InitializeComponent() override;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Climbing")
+	TObjectPtr<ACharacter> Character;
+
+public:
+
+	// Max forward distance of the ledge.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Climbing", meta = (ClampMin = "0"))
+	float LedgeFindingDistance = 200.f;
+
+	// Max ledge height. Height is the distance along Z-axis from the bottom point of the character capsule to the ledge corner.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Climbing", meta = (ClampMin = "0"))
+	float LedgeFindingMaxHeight = 200.f;
+
+	// Max obstacle depth. Defines max distance between obstacle ledges.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Climbing", meta = (ClampMin = "0"))
+	float MaxObstacleDepth = 300.f;
+
+	// Little adjustment to detect ledge if it's height equal to MaxLedgeHeight.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Climbing", meta = (ClampMin = "0"))
+	float AdditionalHeightCorrection = 2.f;
+
+	// Little adjustment to shift top-down line trace deeper to the obstacle.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Climbing", meta = (ClampMin = "0"))
+	float AdditionalDepthCorrection = 2.f;
+
+	// Defines number of top-down traces to find obstacle-top end.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Climbing", meta = (ClampMin = "1"))
+	int OppositeLedgeFindingTraceCount = 10;
+
+	// Defines number of traces to detect obstacle end.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Climbing", meta = (ClampMin = "1"))
+	int LedgeFindingTraceAmount = 10;
+
+public:
 
 	/**
 	* Finds available ledge in-front of the character.
@@ -69,40 +109,7 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Climbing")
 	FVector CalcObstacleTopSurfaceForwardVectorByLedgeFront(const FHitResult LedgeTopHitResult, const FHitResult LedgeFrontHitResult);
 
-	// Max forward distance of the ledge.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Climbing", meta = (ClampMin = "0"))
-	float LedgeFindingDistance = 200.f;
-
-	// Max ledge height. Height is the distance along Z-axis from the bottom point of the character capsule to the ledge corner.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Climbing", meta = (ClampMin = "0"))
-	float LedgeFindingMaxHeight = 200.f;
-
-	// Max obstacle depth. Defines max distance between obstacle ledges.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Climbing", meta = (ClampMin = "0"))
-	float MaxObstacleDepth = 300.f;
-
-	// Little adjustment to detect ledge if it's height equal to MaxLedgeHeight.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Climbing", meta = (ClampMin = "0"))
-	float AdditionalHeightCorrection = 1.f;
-
-	// Little adjustment to shift top-down line trace deeper to the obstacle.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Climbing", meta = (ClampMin = "0"))
-	float AdditionalDepthCorrection = 1.f;
-
-	// Defines number of top-down traces to find obstacle-top end.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Climbing", meta = (ClampMin = "1"))
-	int OppositeLedgeFindingTraceCount = 10;
-
-	// Defines number of traces to detect obstacle end.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Climbing", meta = (ClampMin = "1"))
-	int LedgeFindingTraceAmount = 10;
-
 protected:
-
-	virtual void InitializeComponent() override;
-	
-	UPROPERTY(BlueprintReadWrite, Category = "Climbing")
-	TObjectPtr<ACharacter> Character;
 
 	/**
 	* Finds obstacle/wall in-front of the character. Uses capsule trace to do so.
@@ -130,9 +137,4 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Climbing")
 	float CalcLedgeHeight(FVector LedgeLocation);
 
-	UFUNCTION(BlueprintCallable, Category = "Climbing")
-	bool DisableMovementAndCollision();
-
-	UFUNCTION(BlueprintCallable, Category = "Climbing")
-	bool EnableMovementAndCollision();
 };
